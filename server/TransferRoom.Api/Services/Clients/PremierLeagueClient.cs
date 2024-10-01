@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Flurl;
+using Microsoft.Extensions.Caching.Memory;
 using TransferRoom.Api.Exceptions;
 using TransferRoom.Api.Services.Clients.Models;
 using TransferRoom.Api.Services.Clients.Responses;
@@ -14,7 +15,7 @@ public interface IPremierLeagueClient
 
 internal class PremierLeagueClient : IPremierLeagueClient
 {
-    private const string BaseAddress = "https://footballapi.pulselive.com";
+    private const string BaseAddress = "https://footballapi.pulselive.com/football/";
     private const string CurrentSeasonName = "2024/25";
     private static readonly IReadOnlyDictionary<string, string> DefaultRequestHeaders = new Dictionary<string, string>
     {
@@ -41,17 +42,41 @@ internal class PremierLeagueClient : IPremierLeagueClient
     public async Task<List<TeamDetails>> GetAllTeamsForCurrentSeason(CancellationToken cancellationToken)
     {
         var currentSeasonId = await GetCurrentSeasonId(cancellationToken);
-        var response = await Get<GetAllTeamsResponse>($"football/teams?pageSize=100&comps=1&altIds=true&page=0&compSeasons={currentSeasonId}",
-            nameof(GetAllTeamsForCurrentSeason), cancellationToken);
 
-        return response.TeamsDetails;
+        var url = new Url("teams")
+            .AppendQueryParam("pageSize", 30)
+            .AppendQueryParam("comps", 1)
+            .AppendQueryParam("altIds", true)
+            .AppendQueryParam("page", 0)
+            .AppendQueryParam("compSeasons", currentSeasonId);
+
+        var response = await Get<GetAllTeamsResponse>(url, nameof(GetAllTeamsForCurrentSeason), cancellationToken);
+
+        return response.TeamsDetails
+            .Select(x => new TeamDetails
+            {
+                ShortName = x.ShortName,
+                Id = x.Id,
+                Name = x.Name,
+                ImageUrl = $"https://resources.premierleague.com/premierleague/badges/50/{x.ImageDetails.Id}@x2.png"
+            })
+            .ToList(); ;
     }
 
     public async Task<List<PlayerDetails>> GetTeamPlayers(int teamId, CancellationToken cancellationToken)
     {
         var currentSeasonId = await GetCurrentSeasonId(cancellationToken);
-        var response = await Get<GetTeamPlayersResponse>($"football/teams/{teamId}/compseasons/{currentSeasonId}/staff?pageSize=10&compSeasons={currentSeasonId}&altIds=true&page=0&type=player",
-            nameof(GetTeamPlayers), cancellationToken);
+
+        var url = new Url("teams")
+            .AppendPathSegment(teamId)
+            .AppendPathSegment("compseasons")
+            .AppendPathSegment(currentSeasonId)
+            .AppendPathSegment("staff")
+            .AppendQueryParam("compSeasons", currentSeasonId)
+            .AppendQueryParam("altIds", true)
+            .AppendQueryParam("type", "player");
+
+        var response = await Get<GetTeamPlayersResponse>(url, $"{nameof(GetTeamPlayers)}_{teamId}", cancellationToken);
 
         return response.Players
             .Select(x => new PlayerDetails
@@ -59,6 +84,7 @@ internal class PremierLeagueClient : IPremierLeagueClient
                 FirstName = x.Name.First,
                 LastName = x.Name.Last,
                 BirthDate = x.Birth.Date.BirthDateTime,
+                Position = x.Position,
                 ImageUrl = $"https://resources.premierleague.com/premierleague/photos/players/40x40/{x.ImageDetails.Id}.png"
             })
             .ToList();
@@ -66,7 +92,11 @@ internal class PremierLeagueClient : IPremierLeagueClient
 
     private async Task<double> GetCurrentSeasonId(CancellationToken cancellationToken)
     {
-        var response = await Get<GetSeasonsResponse>("football/competitions/1/compseasons?page=0&pageSize=100", nameof(GetCurrentSeasonId), cancellationToken);
+        var url = new Url("competitions/1/compseasons")
+            .AppendQueryParam("page", 0)
+            .AppendQueryParam("pageSize", 100);
+
+        var response = await Get<GetSeasonsResponse>(url, nameof(GetCurrentSeasonId), cancellationToken);
 
         return response.SeasonsDetails
             .Where(x => x.SeasonName.Equals(CurrentSeasonName, StringComparison.InvariantCultureIgnoreCase))
@@ -106,7 +136,7 @@ internal class PremierLeagueClient : IPremierLeagueClient
 
         T? GetCachedValue(string cacheKey)
         {
-            if (_memoryCache.TryGetValue<T>(cacheKey, out T? cachedValue) &&
+            if (_memoryCache.TryGetValue(cacheKey, out T? cachedValue) &&
                 cachedValue is not null)
             {
                 return cachedValue;

@@ -1,23 +1,26 @@
 import { client } from "../../../common/api/client";
 import { useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 export type PlayerDetails = {
   firstName: string;
   lastName: string;
-  birthDate: Date;
+  birthDate: string;
   imageUrl: string;
+  position: string;
 };
 
 const fetchPlayers =
-  (id: number): (() => Promise<PlayerDetails[]>) =>
+  (id: string): (() => Promise<PlayerDetails[]>) =>
   () =>
     client.get(`/team/${id}/players`).then((response) => response.data);
 
-export const useGetPlayersList = () => {
+export const useGetPlayersList = (teamId: string) => {
   const response = useQuery({
-    queryKey: ["players"],
-    queryFn: fetchPlayers(1),
+    queryKey: [`players_${teamId}`],
+    queryFn: fetchPlayers(teamId),
+    retry: 3,
   });
 
-  return response;
+  return { ...response, error: response.error as AxiosError };
 };

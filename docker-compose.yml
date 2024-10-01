@@ -1,0 +1,24 @@
+version: '3.4'
+
+services:
+  transfer-room-client:
+    image: transfer-room-client
+    container_name: transfer-room_client
+    build:
+      context: ./client
+      dockerfile: ./Dockerfile
+      args:
+        VITE_API_URL: http://localhost:4002
+    ports:
+      - 4001:80
+
+  transfer-room-api:
+    image: transfer-room-api
+    container_name: transfer-room_api
+    build:
+      context: ./server/TransferRoom.Api
+      dockerfile: ./Dockerfile
+    environment: 
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - 4002:80

@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using TransferRoom.Api.Controllers.Responses;
 using TransferRoom.Api.Services.Clients;
 using TransferRoom.Api.Services.Clients.Models;
-using TransferRoom.Api.Utils;
 
 namespace TransferRoom.Api.Controllers;
 
@@ -18,19 +16,10 @@ public class PremierLeagueController : ControllerBase
     }
 
     [HttpGet("teams")]
-    public async Task<List<GetAllTeamsResposne>> GetAllTeams(CancellationToken cancellationToken)
+    public async Task<List<TeamDetails>> GetAllTeams(CancellationToken cancellationToken)
     {
         var teamsDetails = await _client.GetAllTeamsForCurrentSeason(cancellationToken);
-
-        return teamsDetails.Select(x => new GetAllTeamsResposne
-        {
-            Id = x.Id,
-            ShortName = x.ShortName,
-            ImageUrl = ImageUrlProvider.GetTeamImageUrl(x.ImageDetails.Id),
-            Name = x.Name,
-            TeamType = x.TeamType,
-        })
-        .ToList();
+        return teamsDetails;
     }
 
     [HttpGet("team/{id}/players")]

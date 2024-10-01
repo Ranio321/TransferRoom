@@ -30,8 +30,6 @@ export const TextSearch = ({
     if (debouncedValue !== value) {
       onChange(debouncedValue.trim() || "");
     }
-    // this rule is disabled deliberately, because we don't want to call this hook when changing the onChange and value values
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue]);
 
   useEffect(() => {
