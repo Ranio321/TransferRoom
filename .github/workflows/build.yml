@@ -1,0 +1,47 @@
+name: Build
+
+on: push
+
+env:
+  DOTNET_VERSION: '8.x'
+
+jobs:
+  build-server:
+    name: Build server
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Setup dotnet 📦
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install dependencies 📂
+      run: dotnet restore server/TransferRoom.Api/TransferRoom.Api.csproj
+
+    - name: Build 🧱
+      run: dotnet build server/TransferRoom.Api/TransferRoom.Api.csproj --configuration Release --no-restore
+
+  build-client:
+    name: Build client app
+    runs-on: ubuntu-latest
+    env:
+      working-directory: client
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: ${{env.working-directory}}
+
+    - name: Build project
+      run: npm run build
+      working-directory: ${{env.working-directory}}
