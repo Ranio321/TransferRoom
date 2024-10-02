@@ -1,29 +1,31 @@
-name: Deploy
+name: Deploy application to azure
 
 on: workflow_dispatch
 
-env:
-  AZURE_WEBAPP_NAME: transfer-room-service
-  AZURE_WEBAPP_PACKAGE_PATH: "./publish"
-  APPLICATION_PATH: "server/TransferRoom.Api/TransferRoom.Api.sln"
-  DOTNET_VERSION: '8.x'
-
 jobs:
-  publish:
+  publish-server:
+    name: Deploy server
     runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
+    env:
+      AZURE_WEBAPP_NAME: transfer-room-service
+      AZURE_WEBAPP_PACKAGE_PATH: "./publish"
+      APPLICATION_PATH: "server/TransferRoom.Api/TransferRoom.Api.sln"
+      DOTNET_VERSION: '8.x'
 
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Setup .NET 📦
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{env.DOTNET_VERSION}}
 
-    - name: Restore
+    - name: Restore dependencies 📂
       run: dotnet restore ${{env.APPLICATION_PATH}}
 
-    - name: Build
+    - name: Build 🧱
       run: dotnet build ${{env.APPLICATION_PATH}} --configuration Release --no-restore
 
     - name: Publish
@@ -33,5 +35,39 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+        publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
         package: "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+
+  publish-client:
+    name: Deploy web client
+    runs-on: ubuntu-latest
+
+    env:
+      WORKING_DIRECTORY: client
+      AZURE_WEBAPP_NAME: transfer-room-client
+      NODE_VERSION: '18.x'
+      VITE_API_URL: "https://transfer-room-service.azurewebsites.net"
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js 📦
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{env.NODE_VERSION}}
+
+    - name: Install dependencies 📂
+      run: npm install
+      working-directory: ${{env.WORKING_DIRECTORY}}
+
+    - name: Build 🧱
+      run: npm run build
+      working-directory: ${{env.WORKING_DIRECTORY}}
+
+    - name: Deployment
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_APP_PUBLISH_PROFILE }}
+        package: "${{env.WORKING_DIRECTORY}}/dist"
