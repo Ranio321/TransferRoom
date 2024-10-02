@@ -1,14 +1,9 @@
 import { Box } from "@mui/material";
 import { PlayersSearchBar } from "./PlayersSearchBar";
-import { SectionHeading } from "../../common/components/SectionHeading";
 import { useState } from "react";
 import { PlayersTable } from "./PlayersTable";
-
-export type PlayerSearchOptions = {
-  firstName: string;
-  lastName: string;
-  position: string;
-};
+import { SectionHeading } from "../../common/components";
+import { PlayerSearchOptions } from "./types";
 
 export const PlayersList = () => {
   const [searchOptions, setSearchOptions] = useState<PlayerSearchOptions>({

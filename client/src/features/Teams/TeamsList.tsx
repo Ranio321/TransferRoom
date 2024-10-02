@@ -1,8 +1,7 @@
 import { Box } from "@mui/material";
 import { useState } from "react";
-import { TextSearch } from "../../common/components/TextSearch";
-import { SectionHeading } from "../../common/components/SectionHeading";
 import { TeamsCards } from "./TeamsCards";
+import { SectionHeading, TextSearch } from "../../common/components";
 
 export const TeamsList = () => {
   const [search, setSearch] = useState("");

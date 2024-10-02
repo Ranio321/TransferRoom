@@ -7,9 +7,9 @@ import {
 } from "@mui/material";
 import { toUpperCase } from "../../../common/utils";
 import { PlayerDetails } from "../api/useGetPlayersList";
-import { PlayerSearchOptions } from "../PlayersList";
 import { RowCell } from "./RowCell";
 import { AxiosError } from "axios";
+import { PlayerSearchOptions } from "../types";
 
 const getDate = (date: string) => {
   const parsedDate = new Date(date);

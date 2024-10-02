@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
-import { PlayerSearchOptions } from "./PlayersList";
 import { SectionHeading, TextSearch } from "../../common/components";
+import { PlayerSearchOptions } from "./types";
 
 export type PlayersSearchBarProps = {
   searchOptions: PlayerSearchOptions;
