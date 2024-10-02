@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 export type TeamDetails = {
   id: number;
   name: string;
-  shortName: string;
+  nickname?: string;
   imageUrl: string;
 };
 

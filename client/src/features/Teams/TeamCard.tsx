@@ -14,9 +14,10 @@ export type TeamCardProps = {
   imageUrl: string;
   id: number;
   name: string;
+  nickname?: string;
 };
 
-export const TeamCard = ({ imageUrl, name, id }: TeamCardProps) => {
+export const TeamCard = ({ imageUrl, name, id, nickname }: TeamCardProps) => {
   const navigate = useNavigate();
   return (
     <>
@@ -57,7 +58,7 @@ export const TeamCard = ({ imageUrl, name, id }: TeamCardProps) => {
             }}
           >
             <Typography
-              variant="h5"
+              variant="h6"
               sx={{
                 fontFamily: "PremierSans-Heavy",
                 textAlign: "left",
@@ -66,7 +67,7 @@ export const TeamCard = ({ imageUrl, name, id }: TeamCardProps) => {
                 fontWeight: "bold",
               }}
             >
-              {name}
+              {name} {nickname && `- ${nickname}`}
             </Typography>
             <Box
               sx={{

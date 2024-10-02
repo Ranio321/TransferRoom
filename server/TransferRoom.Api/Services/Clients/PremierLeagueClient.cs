@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using TransferRoom.Api.Exceptions;
 using TransferRoom.Api.Services.Clients.Models;
 using TransferRoom.Api.Services.Clients.Responses;
+using TransferRoom.Api.Services.Scrappers;
 using TransferRoom.Api.Services.Serializers;
 
 namespace TransferRoom.Api.Services.Clients;
@@ -26,9 +27,12 @@ internal class PremierLeagueClient : IPremierLeagueClient
 
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _memoryCache;
+    private readonly ITeamNicknameWebScrapper _teamNicknameWebScrapper;
 
-    public PremierLeagueClient(HttpClient httpClient, IMemoryCache memoryCache)
+    public PremierLeagueClient(HttpClient httpClient, IMemoryCache memoryCache, ITeamNicknameWebScrapper teamNicknameWebScrapper)
     {
+        _memoryCache = memoryCache;
+        _teamNicknameWebScrapper = teamNicknameWebScrapper;
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri(BaseAddress);
 
@@ -36,7 +40,6 @@ internal class PremierLeagueClient : IPremierLeagueClient
         {
             _httpClient.DefaultRequestHeaders.Add(header.Key, header.Value);
         }
-        _memoryCache = memoryCache;
     }
 
     public async Task<List<TeamDetails>> GetAllTeamsForCurrentSeason(CancellationToken cancellationToken)
@@ -52,15 +55,26 @@ internal class PremierLeagueClient : IPremierLeagueClient
 
         var response = await Get<GetAllTeamsResponse>(url, nameof(GetAllTeamsForCurrentSeason), cancellationToken);
 
-        return response.TeamsDetails
-            .Select(x => new TeamDetails
+        return await GetTeamsDetails(response, cancellationToken);
+
+        async Task<List<TeamDetails>> GetTeamsDetails(GetAllTeamsResponse response, CancellationToken cancellationToken)
+        {
+            var teamsDetails = new List<TeamDetails>();
+
+            foreach (var teamDetails in response.TeamsDetails)
             {
-                ShortName = x.ShortName,
-                Id = x.Id,
-                Name = x.Name,
-                ImageUrl = $"https://resources.premierleague.com/premierleague/badges/50/{x.ImageDetails.Id}@x2.png"
-            })
-            .ToList(); ;
+                var details = new TeamDetails
+                {
+                    Id = teamDetails.Id,
+                    Name = teamDetails.Name,
+                    Nickname = await _teamNicknameWebScrapper.GetTeamNickname(teamDetails.Name, cancellationToken),
+                    ImageUrl = $"https://resources.premierleague.com/premierleague/badges/50/{teamDetails.ImageDetails.Id}@x2.png"
+                };
+                teamsDetails.Add(details);
+            }
+
+            return teamsDetails;
+        }
     }
 
     public async Task<List<PlayerDetails>> GetTeamPlayers(int teamId, CancellationToken cancellationToken)

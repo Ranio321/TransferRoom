@@ -5,9 +5,10 @@ import {
   useGetCurrentSeasonTeams,
 } from "./api/useGetCurrentSeasonTeams";
 import { UseQueryResult } from "@tanstack/react-query";
+import { TeamSearchOptions } from "./types";
 
 type TeamsCardsProps = {
-  search: string;
+  search: TeamSearchOptions;
 };
 
 export const TeamsCards = ({ search }: TeamsCardsProps) => {
@@ -28,8 +29,12 @@ export const TeamsCards = ({ search }: TeamsCardsProps) => {
   );
 };
 
+const applyPlayersSearchFilter = (filterValue: string, teamValue?: string) =>
+  filterValue === "" ||
+  (teamValue && teamValue.toLowerCase().includes(filterValue.toLowerCase()));
+
 type TeamsCardsContentProps = {
-  search: string;
+  search: TeamSearchOptions;
   queryResult: UseQueryResult<TeamDetails[], Error>;
 };
 export const TeamsCardsContent = ({
@@ -45,12 +50,15 @@ export const TeamsCardsContent = ({
     return <TeamsCardsSkeleton />;
   }
 
-  const filteredTeamsDetails = teamsDetails?.filter(
-    (team) =>
-      !search ||
-      search === "" ||
-      team.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredTeamsDetails = teamsDetails?.filter((team) => {
+    const nameFilterResult = applyPlayersSearchFilter(search.name, team.name);
+    const nicknameFilterResult = applyPlayersSearchFilter(
+      search.nickname,
+      team.nickname
+    );
+
+    return nameFilterResult && nicknameFilterResult;
+  });
   if (!filteredTeamsDetails || filteredTeamsDetails.length === 0) {
     return (
       <Typography>

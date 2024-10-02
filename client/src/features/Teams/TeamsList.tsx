@@ -1,10 +1,15 @@
 import { Box } from "@mui/material";
 import { useState } from "react";
 import { TeamsCards } from "./TeamsCards";
-import { SectionHeading, TextSearch } from "../../common/components";
+import { SectionHeading } from "../../common/components";
+import { TeamSearchOptions } from "./types";
+import { TeamsSearchBar } from "./TeamsSearchBar";
 
 export const TeamsList = () => {
-  const [search, setSearch] = useState("");
+  const [searchOptions, setSearchOptions] = useState<TeamSearchOptions>({
+    name: "",
+    nickname: "",
+  });
 
   return (
     <>
@@ -14,17 +19,12 @@ export const TeamsList = () => {
         justifyContent="flex-start"
         width="100%"
       >
-        <SectionHeading header="Filters" />
-        <TextSearch
-          sx={{ paddingBottom: 5, width: 400 }}
-          label="Search by name"
-          value={search}
-          onChange={(value: string) => {
-            setSearch(value);
-          }}
+        <TeamsSearchBar
+          searchOptions={searchOptions}
+          setSearchOptions={setSearchOptions}
         />
         <SectionHeading header="Teams" />
-        <TeamsCards search={search} />
+        <TeamsCards search={searchOptions} />
       </Box>
     </>
   );

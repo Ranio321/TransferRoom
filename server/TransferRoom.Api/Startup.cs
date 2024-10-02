@@ -1,5 +1,6 @@
 using TransferRoom.Api.ErrorHandling;
 using TransferRoom.Api.Services.Clients;
+using TransferRoom.Api.Services.Scrappers;
 
 namespace TransferRoom.Api;
 
@@ -16,6 +17,7 @@ public class Startup
         services.AddExceptionHandler<InvalidResponseCodeExceptionHandler>();
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
+        services.AddScoped<ITeamNicknameWebScrapper, TeamNicknameWebScrapper>();
 
         services.AddCors(options =>
         {
