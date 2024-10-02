@@ -10,7 +10,7 @@ services:
       args:
         VITE_API_URL: http://localhost:4002
     ports:
-      - 4001:80
+      - 4000:80
 
   transfer-room-api:
     image: transfer-room-api
