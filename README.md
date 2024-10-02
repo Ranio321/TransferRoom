@@ -52,7 +52,7 @@ Client application will be available under following address: http://localhost:4
 ## High level overview
 
 Both client and server applications are hosted on Azure. Client application is hosted with a help of Azure static web apps and server with a help of Azure web apps.\
-Application flow is very simple. Client application calls server that aggregates data from Premier League api and serves it back to client in appropriate shape.
+Application flow is very simple. Client application calls server that aggregates data from Premier League api and external website and serves it back to client in appropriate shape.
 ![](./images/Overview.png)
 
 ## Client
@@ -93,6 +93,7 @@ User can see following information about players:
 
 - .NET 8
 - Flurl
+- HtmlAgilityPack
 
 ### Example endpoint flow Data Flow:
 
