@@ -2,16 +2,24 @@
 
 namespace TransferRoom.Api.Services.Clients.Responses;
 
-public class GetTeamPlayersResponse
+public class GetTeamWithPlayersResponse
 {
-    public required List<PlayerDetails> Players { get; set; }
+    public required List<PlayerDetails> Players { get; init; }
+    public required TeamDetails Team { get; init; }
+
+    public class TeamDetails
+    {
+        public required string Name { get; init; }
+        [JsonPropertyName("altIds")]
+        public required ImageDetails ImageDetails { get; init; }
+    }
 
     public class PlayerDetails
     {
         [JsonPropertyName("latestPosition")]
-        public required string Position { get; set; }
-        public required NameDetails Name { get; set; }
-        public required BirthDetails Birth { get; set; }
+        public required string Position { get; init; }
+        public required NameDetails Name { get; init; }
+        public required BirthDetails Birth { get; init; }
 
         [JsonPropertyName("altIds")]
         public required ImageDetails ImageDetails { get; init; }
@@ -19,13 +27,13 @@ public class GetTeamPlayersResponse
 
     public class NameDetails
     {
-        public required string First { get; set; }
-        public required string Last { get; set; }
+        public required string First { get; init; }
+        public required string Last { get; init; }
     }
 
     public class BirthDetails
     {
-        public required BirthDate Date { get; set; }
+        public required BirthDate Date { get; init; }
 
         public class BirthDate
         {

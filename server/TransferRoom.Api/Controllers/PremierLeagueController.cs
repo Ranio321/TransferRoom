@@ -23,9 +23,9 @@ public class PremierLeagueController : ControllerBase
     }
 
     [HttpGet("team/{id}/players")]
-    public async Task<List<PlayerDetails>> GetTeamPlayers([FromRoute] int id, CancellationToken cancellationToken)
+    public async Task<TeamWithPlayers> GetTeamPlayers([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var playersDetails = await _client.GetTeamPlayers(id, cancellationToken);
-        return playersDetails;
+        var teamWithPlayers = await _client.GetTeamWithPlayers(id, cancellationToken);
+        return teamWithPlayers;
     }
 }

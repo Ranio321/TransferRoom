@@ -5,13 +5,14 @@ using TransferRoom.Api.Services.Clients.Models;
 using TransferRoom.Api.Services.Clients.Responses;
 using TransferRoom.Api.Services.Scrappers;
 using TransferRoom.Api.Services.Serializers;
+using static TransferRoom.Api.Services.Clients.Models.TeamWithPlayers;
 
 namespace TransferRoom.Api.Services.Clients;
 
 public interface IPremierLeagueClient
 {
     Task<List<TeamDetails>> GetAllTeamsForCurrentSeason(CancellationToken cancellationToken);
-    Task<List<PlayerDetails>> GetTeamPlayers(int teamId, CancellationToken cancellationToken);
+    Task<TeamWithPlayers> GetTeamWithPlayers(int teamId, CancellationToken cancellationToken);
 }
 
 internal class PremierLeagueClient : IPremierLeagueClient
@@ -77,7 +78,7 @@ internal class PremierLeagueClient : IPremierLeagueClient
         }
     }
 
-    public async Task<List<PlayerDetails>> GetTeamPlayers(int teamId, CancellationToken cancellationToken)
+    public async Task<TeamWithPlayers> GetTeamWithPlayers(int teamId, CancellationToken cancellationToken)
     {
         var currentSeasonId = await GetCurrentSeasonId(cancellationToken);
 
@@ -90,18 +91,29 @@ internal class PremierLeagueClient : IPremierLeagueClient
             .AppendQueryParam("altIds", true)
             .AppendQueryParam("type", "player");
 
-        var response = await Get<GetTeamPlayersResponse>(url, $"{nameof(GetTeamPlayers)}_{teamId}", cancellationToken);
+        var response = await Get<GetTeamWithPlayersResponse>(url, $"{nameof(GetTeamWithPlayers)}_{teamId}", cancellationToken);
 
-        return response.Players
-            .Select(x => new PlayerDetails
+        var teamWithPlayers = new TeamWithPlayers
+        {
+            TeamDetails = new()
             {
-                FirstName = x.Name.First,
-                LastName = x.Name.Last,
-                BirthDate = x.Birth.Date.BirthDateTime,
-                Position = x.Position,
-                ImageUrl = $"https://resources.premierleague.com/premierleague/photos/players/40x40/{x.ImageDetails.Id}.png"
-            })
-            .ToList();
+                Name = response.Team.Name,
+                ImageUrl = $"https://resources.premierleague.com/premierleague/badges/50/{response.Team.ImageDetails.Id}@x2.png"
+            },
+
+            PlayersDetails = response.Players
+                .Select(x => new PlayerDetails
+                {
+                    FirstName = x.Name.First,
+                    LastName = x.Name.Last,
+                    BirthDate = x.Birth.Date.BirthDateTime,
+                    Position = x.Position,
+                    ImageUrl = $"https://resources.premierleague.com/premierleague/photos/players/40x40/{x.ImageDetails.Id}.png"
+                })
+                .ToList()
+        };
+
+        return teamWithPlayers;
     }
 
     private async Task<double> GetCurrentSeasonId(CancellationToken cancellationToken)
@@ -131,7 +143,7 @@ internal class PremierLeagueClient : IPremierLeagueClient
 
         if (fetchResult.IsSuccessStatusCode)
         {
-            var responseStream = await fetchResult.Content.ReadAsStreamAsync(cancellationToken);
+            using var responseStream = await fetchResult.Content.ReadAsStreamAsync(cancellationToken);
             var parsedResponse = PremierLeagueClientJsonSerializer.Deserialize<T>(responseStream);
 
             if (parsedResponse is null)

@@ -1,23 +1,21 @@
 import { client } from "../../../common/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { PlayerDetails, TeamDetails } from "../types";
 
-export type PlayerDetails = {
-  firstName: string;
-  lastName: string;
-  birthDate: string;
-  imageUrl: string;
-  position: string;
+export type TeamWithPlayers = {
+  teamDetails: TeamDetails;
+  playersDetails: PlayerDetails[];
 };
 
 const fetchPlayers =
-  (id: string): (() => Promise<PlayerDetails[]>) =>
+  (id: string): (() => Promise<TeamWithPlayers>) =>
   () =>
     client.get(`/team/${id}/players`).then((response) => response.data);
 
-export const useGetPlayersList = (teamId: string) => {
+export const useGetTeamWithPlayers = (teamId: string) => {
   const response = useQuery({
-    queryKey: [`players_${teamId}`],
+    queryKey: [`teamWithPlayers_${teamId}`],
     queryFn: fetchPlayers(teamId),
     retry: 3,
   });

@@ -6,23 +6,25 @@ import {
   TableRow,
   TableCell,
 } from "@mui/material";
-import { useParams, Navigate } from "react-router-dom";
-import { useGetPlayersList } from "../api/useGetPlayersList";
 import { HeaderCell } from "./HeaderCell";
 import { TableContent } from "./TableContent";
 import { TableContentSkeleton } from "./TableContentSkeleton";
-import { PlayerSearchOptions } from "../types";
+import { PlayerDetails, PlayerSearchOptions } from "../types";
+import { AxiosError } from "axios";
 
 type PlayersTableProps = {
   search: PlayerSearchOptions;
+  isLoading: boolean;
+  error: AxiosError;
+  playersDetails?: PlayerDetails[];
 };
 
-export const PlayersTable = ({ search }: PlayersTableProps) => {
-  const { teamId } = useParams();
-  if (!teamId) return <Navigate to={"/"} />;
-
-  const { isLoading, data: playersDetails, error } = useGetPlayersList(teamId);
-
+export const PlayersTable = ({
+  search,
+  isLoading,
+  playersDetails,
+  error,
+}: PlayersTableProps) => {
   return (
     <Paper sx={{ backgroundColor: "#FAFBFB", padding: "2rem" }}>
       <TableContainer component={Paper}>

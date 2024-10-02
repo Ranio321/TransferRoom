@@ -2,8 +2,8 @@
 
 public class TeamDetails
 {
-    public double? Id { get; set; }
-    public required string Name { get; set; }
-    public required string? Nickname { get; set; }
-    public required string ImageUrl { get; set; }
+    public double? Id { get; init; }
+    public required string Name { get; init; }
+    public required string? Nickname { get; init; }
+    public required string ImageUrl { get; init; }
 }
