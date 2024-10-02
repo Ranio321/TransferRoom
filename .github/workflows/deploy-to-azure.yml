@@ -3,7 +3,7 @@ name: Deploy
 on: workflow_dispatch
 
 env:
-  AZURE_WEBAPP_NAME: transfer-room-api
+  AZURE_WEBAPP_NAME: transfer-room-service
   AZURE_WEBAPP_PACKAGE_PATH: "./publish"
   APPLICATION_PATH: "server/TransferRoom.Api/TransferRoom.Api.sln"
   DOTNET_VERSION: '8.x'
