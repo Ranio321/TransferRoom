@@ -4,8 +4,14 @@ on: workflow_dispatch
 
 jobs:
   build_and_deploy_job:
-    runs-on: ubuntu-latest
     name: Build and Deploy Job
+    runs-on: ubuntu-latest
+
+    env:
+      WORKING_DIRECTORY: client
+      AZURE_WEBAPP_NAME: transfer-room-client
+      NODE_VERSION: '18.x'
+      VITE_API_URL: "https://transfer-room-service.azurewebsites.net"
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
@@ -20,4 +26,4 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         action: "upload"
         app_location: "./client"
-        output_location: "dist" 
+        output_location: "dist"
