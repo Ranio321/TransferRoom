@@ -8,10 +8,10 @@ import {
 } from "@mui/material";
 import { useParams, Navigate } from "react-router-dom";
 import { useGetPlayersList } from "../api/useGetPlayersList";
-import { PlayerSearchOptions } from "../PlayersList";
 import { HeaderCell } from "./HeaderCell";
 import { TableContent } from "./TableContent";
 import { TableContentSkeleton } from "./TableContentSkeleton";
+import { PlayerSearchOptions } from "../types";
 
 type PlayersTableProps = {
   search: PlayerSearchOptions;
