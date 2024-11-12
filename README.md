@@ -2,7 +2,9 @@
 
 Simple web-based POC that enables a user to select any team in the 2024/25 season of the English premier league and return the squad details for that chosen team
 
-**Full Website is available under following address: https://delightful-sea-0ea800e03.5.azurestaticapps.net**
+~~**Full Website is available under following address: https://delightful-sea-0ea800e03.5.azurestaticapps.net**~~
+
+**Full Website is not longer available**
 
 ## How to run the application:
 
